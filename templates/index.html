@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Versleutel tekst en maak sterke wachtwoorden met je lokale Tekstkluis.">
+  <title>Tekstkluis — Jouw tekst, veilig opgeborgen</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Tekstkluis startpagina"><span class="brand-icon" aria-hidden="true">⌘</span>tekstkluis<span class="brand-dot">.</span></a>
+    <span class="local-indicator"><i></i> Draait op jouw computer</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div class="eyebrow">EEN BEETJE PRIVACY. HELEMAAL VAN JOU.</div>
+      <h1>Jouw tekst.<br>Veilig <span>opgeborgen.</span></h1>
+      <p>Maak van leesbare tekst een goed bewaard geheim.<br class="desktop-break"> Zonder wachtwoord. Met een automatisch gemaakte sleutel.</p>
+    </section>
+    <div class="workspace">
+      <section class="tool" aria-label="Tekstkluis functies">
+        <div class="tabs" role="tablist" aria-label="Kies een functie">
+          <button type="button" id="tab-encrypt" role="tab" aria-selected="true" aria-controls="panel-encrypt" data-mode="encrypt">Versleutelen</button>
+          <button type="button" id="tab-decrypt" role="tab" aria-selected="false" aria-controls="panel-decrypt" tabindex="-1" data-mode="decrypt">Ontsleutelen</button>
+          <button type="button" id="tab-generate" role="tab" aria-selected="false" aria-controls="panel-generate" tabindex="-1" data-mode="generate">Wachtwoord</button>
+          <button type="button" id="tab-username" role="tab" aria-selected="false" aria-controls="panel-username" tabindex="-1" data-mode="username">Gebruikersnaam</button>
+        </div>
+        <div class="tool-content">
+          <section role="tabpanel" id="panel-encrypt" aria-labelledby="tab-encrypt">
+            <div class="section-heading"><div><h2>Sluit je tekst af</h2><p>Een geheim begint met jouw woorden.</p></div><span class="step">01 / 02</span></div>
+            <form id="encrypt-form">
+              <div class="label-row"><label for="encrypt-text">Jouw tekst</label><span id="byte-count">0 / 100.000 bytes</span></div>
+              <textarea id="encrypt-text" rows="6" placeholder="Typ of plak hier wat je voor jezelf wilt houden…" required spellcheck="false"></textarea>
+              <p class="field-help">De app maakt automatisch een geheime sleutel. Bewaar deze apart om je tekst later weer te openen.</p>
+              <div class="form-actions"><button class="primary" type="submit">Versleutel tekst <span aria-hidden="true">↗</span></button><button class="text-button" type="button" data-clear="encrypt">Wis velden</button></div>
+            </form>
+          </section>
+          <section role="tabpanel" id="panel-decrypt" aria-labelledby="tab-decrypt" hidden>
+            <div class="section-heading"><div><h2>Open je geheim</h2><p>Je sleutel wordt in deze sessie automatisch gebruikt.</p></div><span class="step">02 / 02</span></div>
+            <form id="decrypt-form">
+              <div class="label-row"><label for="decrypt-text">Versleutelde tekst</label><button type="button" class="inline-button" id="open-file">Open .cipher-bestand ↗</button></div>
+              <input id="file-input" type="file" accept=".cipher,text/plain" hidden>
+              <textarea id="decrypt-text" rows="6" placeholder="Plak hier je versleutelde tekst…" required spellcheck="false" maxlength="140000"></textarea>
+              <div class="key-import"><p id="key-state">Nog geen sleutel beschikbaar. Versleutel eerst tekst of open je sleutelbestand.</p><button type="button" class="inline-button" id="open-key">Open sleutelbestand ↗</button><input id="key-input" type="file" accept=".key,text/plain" hidden></div>
+              <p class="field-help">De sleutel blijft alleen tijdelijk in dit tabblad. Na sluiten of vernieuwen heb je het opgeslagen sleutelbestand nodig.</p>
+              <div class="form-actions"><button class="primary" type="submit">Ontsleutel tekst <span aria-hidden="true">↗</span></button><button class="text-button" type="button" data-clear="decrypt">Wis velden</button></div>
+            </form>
+          </section>
+          <section role="tabpanel" id="panel-generate" aria-labelledby="tab-generate" hidden>
+            <div class="section-heading"><div><h2>Een nieuw wachtwoord</h2><p>Kies een niveau of stel zelf je wachtwoord samen.</p></div><span class="step">NIEUW</span></div>
+            <form id="generate-form">
+              <fieldset class="level-options">
+                <legend>Kies een niveau</legend>
+                <label><input type="radio" name="password-level" value="simple"><span><strong>Simpel</strong><small>16 tekens · kleine letters</small></span></label>
+                <label><input type="radio" name="password-level" value="medium"><span><strong>Matig</strong><small>20 tekens · letters en cijfers</small></span></label>
+                <label><input type="radio" name="password-level" value="hard" checked><span><strong>Moeilijk</strong><small>24 tekens · alle tekensoorten</small></span></label>
+              </fieldset>
+              <p id="level-description" class="field-help">Moeilijk geselecteerd. Je kunt de instellingen hieronder zelf aanpassen.</p>
+              <label for="password-length">Hoe lang mag je wachtwoord zijn?</label>
+              <div class="range-row"><input id="password-length" type="range" min="16" max="128" value="24"><output id="length-value" for="password-length">24 tekens</output></div>
+              <fieldset class="character-options">
+                <legend>Welke tekens wil je gebruiken?</legend>
+                <label><input type="checkbox" id="include-lowercase" checked> Kleine letters <span>a–z</span></label>
+                <label><input type="checkbox" id="include-uppercase" checked> Hoofdletters <span>A–Z</span></label>
+                <label><input type="checkbox" id="include-digits" checked> Cijfers <span>0–9</span></label>
+                <label><input type="checkbox" id="include-special" checked> Speciale tekens <span>!@#</span></label>
+              </fieldset>
+              <p class="field-help">Kies minimaal één optie. Elke gekozen tekensoort komt minstens één keer voor.</p>
+              <div class="form-actions"><button class="primary" type="submit">Maak wachtwoord <span aria-hidden="true">↗</span></button><button class="text-button" type="button" data-clear="generate">Wis resultaat</button></div>
+            </form>
+          </section>
+          <section role="tabpanel" id="panel-username" aria-labelledby="tab-username" hidden>
+            <div class="section-heading"><div><h2>Bedenk je gebruikersnaam</h2><p>Laat de app iets bedenken of begin met je eigen idee.</p></div><span class="step">JOUW NAAM</span></div>
+            <form id="username-form">
+              <fieldset class="level-options">
+                <legend>Kies een niveau voor je naam</legend>
+                <label><input type="radio" name="username-level" value="simple" checked><span><strong>Simpel</strong><small>Bijvoorbeeld Otter47</small></span></label>
+                <label><input type="radio" name="username-level" value="medium"><span><strong>Matig</strong><small>Bijvoorbeeld VlotteOtter_2481</small></span></label>
+                <label><input type="radio" name="username-level" value="hard"><span><strong>Moeilijk</strong><small>Bijvoorbeeld VlotteOtter_a3b9c2d817</small></span></label>
+              </fieldset>
+              <label for="username-idea">Eigen naam of idee (optioneel)</label>
+              <input id="username-idea" type="text" maxlength="24" placeholder="Bijvoorbeeld Shemar of Pixel" autocomplete="off" pattern="[A-Za-z0-9][A-Za-z0-9_\-]{0,23}">
+              <p class="field-help">Laat dit leeg voor een volledig bedachte naam. Met een eigen idee gebruikt de app dat als begin van je naam.</p>
+              <p class="field-help">De niveaus bepalen de stijl van de naam. Dit maakt geen account aan en controleert geen beschikbaarheid.</p>
+              <div class="form-actions"><button class="primary" type="submit">Bedenk gebruikersnaam <span aria-hidden="true">↗</span></button><button class="text-button" type="button" data-clear="username">Wis resultaat</button></div>
+            </form>
+          </section>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+      <aside class="result-panel" aria-labelledby="result-heading">
+        <div class="result-top"><span class="eyebrow">JOUW RESULTAAT</span><span class="result-dot" aria-hidden="true"></span></div>
+        <div id="empty-result" class="empty-result"><div class="vault-illustration" aria-hidden="true"><div class="vault-inner"><div class="vault-wheel">✳</div></div><i></i><i></i></div><h2 id="result-heading">Hier begint je geheim.</h2><p>Je resultaat verschijnt hier zodra je tekst versleutelt, ontsleutelt of een naam of wachtwoord maakt.</p></div>
+        <div id="text-result" hidden><h2 id="result-title">Je tekst is versleuteld.</h2><p class="result-description" id="result-description"></p><label class="sr-only" for="result-text">Resultaat</label><textarea id="result-text" rows="10" readonly spellcheck="false"></textarea><div class="result-actions"><button type="button" class="light-button" id="copy-result">Kopieer resultaat ↗</button><button type="button" class="dark-text-button" id="download-result">Bewaar bestand ↓</button></div><div id="key-export" class="key-export" hidden><button type="button" class="light-button" id="download-key">Bewaar geheime sleutel ↓</button><p>Bewaar het .key-bestand apart van je .cipher-bestand. Samen geven ze toegang tot je tekst.</p></div><button type="button" class="dark-text-button transfer" id="to-decrypt">Verder naar ontsleutelen →</button></div>
+        <div id="generated-result" hidden><h2>Helemaal nieuw.</h2><p class="result-description">Bewaar je wachtwoord op een veilige plek.</p><label for="generated-password">Wachtwoord</label><input id="generated-password" readonly type="password"><div class="result-actions"><button type="button" class="light-button" data-copy="generated-password">Kopieer wachtwoord ↗</button><button type="button" class="dark-text-button" data-reveal="generated-password">Toon</button></div><button type="button" class="dark-text-button transfer" id="protect-generated">Versleutel dit wachtwoord →</button></div>
+        <div id="username-result" hidden><h2>Een naam die bij je past.</h2><p class="result-description">Kopieer je naam of laat nog een voorstel bedenken.</p><label for="generated-username">Jouw gebruikersnaam</label><input id="generated-username" readonly><div class="result-actions"><button type="button" class="light-button" data-copy="generated-username">Kopieer gebruikersnaam ↗</button></div><button type="button" class="dark-text-button transfer" id="protect-username">Versleutel deze gebruikersnaam →</button></div>
+        <div class="result-footer"><span aria-hidden="true">↳</span><p>De app maakt jouw sleutel.<br>Bewaar die apart en houd hem geheim.</p></div>
+      </aside>
+    </div>
+    <footer class="page-footer"><span>Een kleine kluis voor grote en kleine geheimen.</span><span>Lokale verwerking <i>·</i> AES-256-GCM</span></footer>
+  </main>
+</body>
+</html>
